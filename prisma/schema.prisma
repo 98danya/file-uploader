@@ -25,9 +25,12 @@ model User {
 
 model Session {
   id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  sid       String   @unique
+  data      String
   expiresAt DateTime
+
+  userId    String?   
+  user      User?     @relation(fields: [userId], references: [id])
 }
 
 model Folder {
