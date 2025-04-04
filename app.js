@@ -121,6 +121,7 @@ app.post("/upload", ensureAuthenticated, upload.single("file"), async (req, res)
     const file = await prisma.file.create({
       data: {
         name: originalname,
+        filename,
         size,
         url: `/uploads/${filename}`,
         userId,
@@ -197,28 +198,79 @@ app.delete("/folders/:id", ensureAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/upload", ensureAuthenticated, upload.single("file"), async (req, res) => {
+app.get("/files/:id", ensureAuthenticated, async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-
-    const { originalname, filename, size } = req.file;
-    const { folderId } = req.body;
-    const userId = req.user.id;
-
-    const file = await prisma.file.create({
-      data: {
-        name: originalname,
-        size,
-        url: `/uploads/${filename}`,
-        userId,
-        folderId: folderId || null,
+    const fileId = req.params.id;
+    const file = await prisma.file.findUnique({
+      where: { id: fileId },
+      select: {
+        id: true,
+        name: true,
+        filename: true,
+        size: true,
+        url: true,
+        createdAt: true,
       },
     });
 
-    res.json({ message: "File uploaded successfully", file });
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    res.json(file);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "File upload failed" });
+    res.status(500).json({ message: "Error fetching file details" });
+  }
+});
+
+app.put("/files/:fileId/folder/:folderId", ensureAuthenticated, async (req, res) => {
+  try {
+    const { fileId, folderId } = req.params;
+    const userId = req.user.id;
+
+    const file = await prisma.file.findUnique({
+      where: { id: fileId, userId },
+    });
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const folder = await prisma.folder.findUnique({
+      where: { id: folderId, userId },
+    });
+    if (!folder) {
+      return res.status(404).json({ message: "Folder not found" });
+    }
+
+    const updatedFile = await prisma.file.update({
+      where: { id: fileId },
+      data: { folderId },
+    });
+
+    res.json({ message: "File folder updated successfully", updatedFile });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating file folder" });
+  }
+});
+
+app.get("/download/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const fileId = req.params.id;
+    const file = await prisma.file.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const filePath = path.join(__dirname, "uploads", file.filename);
+    res.download(filePath, file.name);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error downloading file" });
   }
 });
 

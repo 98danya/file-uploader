@@ -45,6 +45,7 @@ model Folder {
 model File {
   id        String   @id @default(uuid())
   name      String
+  filename  String 
   size      Int
   url       String
   folderId  String?
