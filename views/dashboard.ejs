@@ -1,0 +1,87 @@
+<h1>Dashboard</h1>
+
+<h2>Your Folders</h2>
+
+<% if (folders.length === 0) { %>
+  <p>No folders yet. You can create one from the <a href="/">home page</a>.</p>
+<% } else { %>
+  <ul>
+    <% folders.forEach(folder => { %>
+      <li>
+        <strong><%= folder.name %></strong> (<%= folder.files.length %> files)
+
+        <form class="rename-folder-form" data-folder-id="<%= folder.id %>" style="display:inline;">
+          <input type="text" name="newName" placeholder="New name" required>
+          <button type="submit">Rename</button>
+        </form>
+
+        <form class="delete-folder-form" data-folder-id="<%= folder.id %>" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
+
+        <ul>
+          <% if (folder.files.length === 0) { %>
+            <li>No files in this folder.</li>
+          <% } else { %>
+            <% folder.files.forEach(file => { %>
+              <li>
+                <a href="/files/<%= file.id %>"><%= file.name %></a> 
+                (<%= Math.round(file.size / 1024) %> KB)
+                <a href="/download/<%= file.id %>">Download</a>
+
+                <form class="move-file-form" data-file-id="<%= file.id %>" style="display:inline;">
+                  <select name="folderId">
+                    <option value="">Uncategorized</option>
+                    <% folders.forEach(f => { %>
+                      <% if (f.id !== folder.id) { %>
+                        <option value="<%= f.id %>"><%= f.name %></option>
+                      <% } %>
+                    <% }); %>
+                  </select>
+                  <button type="submit">Move</button>
+                </form>
+
+                <form class="delete-file-form" data-file-id="<%= file.id %>" style="display:inline;">
+                  <button type="submit">Delete</button>
+                </form>
+              </li>
+            <% }) %>
+          <% } %>
+        </ul>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<h2>Uncategorized Files</h2>
+
+<% if (uncategorizedFiles.length === 0) { %>
+  <p>No uncategorized files.</p>
+<% } else { %>
+  <ul>
+    <% uncategorizedFiles.forEach(file => { %>
+      <li>
+        <a href="/files/<%= file.id %>"><%= file.name %></a>
+        (<%= Math.round(file.size / 1024) %> KB)
+        <a href="/download/<%= file.id %>">Download</a>
+
+        <form class="move-file-form" data-file-id="<%= file.id %>" style="display:inline;">
+          <select name="folderId">
+            <option value="">Uncategorized</option>
+            <% folders.forEach(folder => { %>
+              <option value="<%= folder.id %>"><%= folder.name %></option>
+            <% }); %>
+          </select>
+          <button type="submit">Move</button>
+        </form>
+
+        <form class="delete-file-form" data-file-id="<%= file.id %>" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<p><a href="/">Upload More Files</a></p>
+<p><a href="/logout">Logout</a></p>

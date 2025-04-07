@@ -1,0 +1,27 @@
+<h1>Welcome to File Uploader</h1>
+
+<% if (!user) { %>
+  <p><a href="/login">Login</a> or <a href="/register">Register</a> to get started.</p>
+<% } else { %>
+  <h2>Upload a File</h2>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+
+    <select name="folderId">
+      <option value="">Select a Folder (optional)</option>
+      <% folders.forEach(folder => { %>
+        <option value="<%= folder.id %>"><%= folder.name %></option>
+      <% }); %>
+    </select>
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Create a Folder</h2>
+  <form action="/folders" method="POST">
+    <input type="text" name="name" placeholder="Folder name" required>
+    <button type="submit">Create</button>
+  </form>
+
+  <p><a href="/dashboard">Go to Dashboard</a></p>
+<% } %>
