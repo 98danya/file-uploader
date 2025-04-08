@@ -20,7 +20,7 @@
   "homepage": "https://github.com/98danya/file-uploader#readme",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.6.0",
     "@quixo3/prisma-session-store": "^3.1.13",
     "@supabase/supabase-js": "^2.49.4",
     "bcrypt": "^5.1.1",
@@ -40,6 +40,6 @@
     "pg": "^8.14.1"
   },
   "devDependencies": {
-    "prisma": "^6.5.0"
+    "prisma": "^6.6.0"
   }
 }
