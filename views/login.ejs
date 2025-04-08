@@ -1,4 +1,11 @@
 <h1>Login</h1>
+
+<% if (error) { %>
+  <div style="color: orange; margin-bottom: 1rem;">
+    <%= error %>. Please try again or <a href="/register">register here</a>.
+  </div>
+<% } %>
+
 <form action="/login" method="POST">
   <label>Email:</label>
   <input type="email" name="email" required>

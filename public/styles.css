@@ -183,7 +183,7 @@ form select:focus {
 form button {
     background-image: linear-gradient(to right, #ed9512, #ff6347);
     border: none;
-    color: white;
+    color: #ffffff;
     font-size: 1.1rem;
     padding: 12px 24px;
     border-radius: 10px;
@@ -242,7 +242,7 @@ form button:hover {
 
 .dashboard .edit-toggle-btn {
     background-image: linear-gradient(to right, #ed9512, #ff6347);
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     padding: 5px 10px;
@@ -280,7 +280,7 @@ form button:hover {
 .dashboard .folder-actions button,
 .dashboard .file-actions button {
     background-image: linear-gradient(to right, #ff6347, #ed9512);
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
@@ -337,7 +337,7 @@ form button:hover {
 
 .folder-actions button {
     background-image: linear-gradient(to right, #ed9512, #ff6347);
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
@@ -360,7 +360,7 @@ form button:hover {
 
 footer {
     background-image: linear-gradient(to right, #ed9512, #ff6347);
-    color: #fff;
+    color: #ffffff;
     padding: 20px;
     text-align: center;
     margin-top: auto;

@@ -88,14 +88,15 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", { title: "Login" });
+  const error = req.query.error;
+  res.render("login", { title: "Login", error });
 });
 
 app.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
     if (!user) {
-      return res.status(401).json({ message: info.message || "Login failed" });
+      return res.redirect(`/login?error=${encodeURIComponent(info.message || "Login failed")}`);
     }
     req.logIn(user, (err) => {
       if (err) return next(err);
