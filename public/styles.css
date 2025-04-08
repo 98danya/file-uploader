@@ -258,9 +258,28 @@ form button:hover {
     transform: translateY(-2px);
 }
 
-.dashboard .file-actions button,
-.dashboard .folder-actions button {
-    background-image: linear-gradient(to right, #ed9512, #ff6347);
+.dashboard .file-actions,
+.dashboard .folder-actions {
+    margin-left: 450px;
+}
+
+.file-actions form,
+.folder-actions form {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.dashboard .folder-actions.hidden,
+.dashboard .file-actions.hidden {
+    display: none;
+}
+
+.dashboard .folder-actions button,
+.dashboard .file-actions button {
+    background-image: linear-gradient(to right, #ff6347, #ed9512);
     color: white;
     border: none;
     border-radius: 10px;
@@ -268,10 +287,11 @@ form button:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1rem;
+    align-items: center;
 }
 
-.dashboard .file-actions button:hover,
-.dashboard .folder-actions button:hover {
+.dashboard .folder-actions button:hover,
+.dashboard .file-actions button:hover {
     background-image: linear-gradient(to right, #ffa500, #ff4500);
     transform: translateY(-2px);
 }
@@ -344,24 +364,4 @@ footer {
     padding: 20px;
     text-align: center;
     margin-top: auto;
-}
-
-@media (max-width: 768px) {
-    body {
-        padding: 20px;
-    }
-
-    main {
-        padding: 0;
-    }
-
-    ul li {
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-
-    form {
-        width: 100%;
-        gap: 5px;
-    }
 }
