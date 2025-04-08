@@ -7,6 +7,9 @@ const PrismaStore = require("@quixo3/prisma-session-store").PrismaSessionStore;
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("./config/cloudinary");
+const { extractPublicId } = require("cloudinary-build-url");
 const path = require("path");
 const fs = require("fs");
 
@@ -96,7 +99,9 @@ app.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
     if (!user) {
-      return res.redirect(`/login?error=${encodeURIComponent(info.message || "Login failed")}`);
+      return res.redirect(
+        `/login?error=${encodeURIComponent(info.message || "Login failed")}`
+      );
     }
     req.logIn(user, (err) => {
       if (err) return next(err);
@@ -109,22 +114,38 @@ app.get("/register", (req, res) => {
   res.render("register", { title: "Register" });
 });
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req, res, next) => {
   const { email, password } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  const newUser = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-    },
-  });
+    if (existingUser) {
+      return res.status(400).render("register", {
+        title: "Register",
+        error: "Email is already taken. Please choose another one.",
+      });
+    }
 
-  req.login(newUser, (err) => {
-    if (err) return next(err);
-    res.redirect("/");
-  });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    req.login(newUser, (err) => {
+      if (err) return next(err);
+      res.redirect("/");
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 function ensureAuthenticated(req, res, next) {
@@ -134,10 +155,12 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/login");
 }
 
-const storage = multer.diskStorage({
-  destination: uploadDir,
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "user_uploads",
+    allowed_formats: ["jpg", "png", "pdf", "docx", "txt", "zip", "gif", "jpeg"],
+    public_id: (req, file) => `${Date.now()}-${file.originalname}`,
   },
 });
 
@@ -152,7 +175,7 @@ app.post(
       if (!req.file)
         return res.status(400).json({ message: "No file uploaded" });
 
-      const { originalname, filename, size } = req.file;
+      const { originalname, size, filename, path } = req.file;
       const userId = req.user.id;
       const { folderId } = req.body;
 
@@ -168,13 +191,24 @@ app.post(
           return res.status(400).json({ message: "Folder not found" });
         }
       }
+      const cloudinaryUrl = req.file.path;
 
-      const file = await prisma.file.create({
+      const cloudinaryPublicId = cloudinaryUrl.replace(/\.[a-zA-Z0-9]+$/, "");
+
+      console.log(
+        "File uploaded and saved:",
+        originalname,
+        filename,
+        cloudinaryUrl
+      );
+      console.log("Extracted Public ID:", cloudinaryPublicId);
+
+      await prisma.file.create({
         data: {
           name: originalname,
-          filename,
           size,
-          url: `/uploads/${filename}`,
+          filename: cloudinaryPublicId,
+          url: cloudinaryUrl,
           userId,
           folderId: folderId || null,
         },
@@ -292,10 +326,14 @@ app.delete("/files/:id", ensureAuthenticated, async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    const filePath = path.join(__dirname, "uploads", file.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    const cloudinaryPublicId = file.url.split("/upload/")[1].split(".")[0];
+
+    console.log("Deleting from Cloudinary:", cloudinaryPublicId);
+
+    const cloudinaryResult = await cloudinary.uploader.destroy(
+      cloudinaryPublicId
+    );
+    console.log("Cloudinary deletion result:", cloudinaryResult);
 
     await prisma.file.delete({
       where: { id: fileId },
@@ -303,12 +341,15 @@ app.delete("/files/:id", ensureAuthenticated, async (req, res) => {
 
     res.json({ message: "File deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting file:", error);
     res.status(500).json({ message: "Error deleting file" });
   }
 });
 
-app.put("/files/:fileId/folder/:folderId", ensureAuthenticated, async (req, res) => {
+app.put(
+  "/files/:fileId/folder/:folderId",
+  ensureAuthenticated,
+  async (req, res) => {
     try {
       const { fileId, folderId } = req.params;
       const userId = req.user.id;
