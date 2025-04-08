@@ -1,6 +1,11 @@
 <header>
-    <h2><a href="/">File Uploader</a></h2>
+    <div class="header-top">
+        <a href="/">
+            <img src="/icons/folder-icon.png" alt="Folder Icon" class="header-icon">
+            <h1><a href="/">File Uploader</a></h1>
+        </a>
+    </div>
     <% if (user) { %>
-      <p>Logged in as <%= user.email %> | <a href="/logout">Logout</a></p>
-    <% } %>
-  </header>
+        <p class="login-info">Logged in as <%= user.email %> | <a href="/logout">Logout</a></p>
+        <% } %>
+</header>

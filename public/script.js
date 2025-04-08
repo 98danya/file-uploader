@@ -1,4 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const editButtons = document.querySelectorAll(".edit-toggle-btn");
+
+  editButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const folderId = btn.dataset.folderId;
+      const actionPanel = document.getElementById(`actions-${folderId}`);
+
+      actionPanel.classList.toggle("hidden");
+    });
+  });
+
   document.querySelectorAll(".rename-folder-form").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
