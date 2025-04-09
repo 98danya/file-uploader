@@ -18,10 +18,6 @@ const prisma = new PrismaClient();
 
 const expressLayouts = require("express-ejs-layouts");
 
-const uploadDir = "./uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -45,8 +41,6 @@ app.use(
     }),
   })
 );
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 passport.use(
   new LocalStrategy(
@@ -385,8 +379,7 @@ app.get("/download/:id", ensureAuthenticated, async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    const filePath = path.join(__dirname, "uploads", file.filename);
-    res.download(filePath, file.name);
+    return res.redirect(file.url); 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error downloading file" });
