@@ -16,3 +16,8 @@ A file uploader application built using HTML, CSS, JavaScript, Node.js, Express,
 Live Link: https://file-uploader-production-dd12.up.railway.app/
 
 Assignment: https://www.theodinproject.com/lessons/nodejs-file-uploader
+
+
+## Credits
+
+Folder Icon: https://3dicons.co/icons/176980-folder
