@@ -379,7 +379,8 @@ app.get("/download/:id", ensureAuthenticated, async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    return res.redirect(file.url); 
+    const downloadUrl = file.url.replace('/upload/', '/upload/fl_attachment/');
+    return res.redirect(downloadUrl);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error downloading file" });
